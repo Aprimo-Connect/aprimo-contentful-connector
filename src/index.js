@@ -83,7 +83,7 @@ async function openDialog(sdk, _currentValue, _config) {
   
   window.addEventListener("message", handleMessageEvent, false);
 
-  return [];
+  return _currentValue;
 
 }
 
