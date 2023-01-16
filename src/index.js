@@ -12,7 +12,7 @@ setup({
   cta: CTA,
   name: 'Aprimo for Contentful',
   logo: 'https://images.ctfassets.net/fo9twyrwpveg/6eVeSgMr2EsEGiGc208c6M/f6d9ff47d8d26b3b238c6272a40d3a99/contentful-logo.png',
-  color: '#036FE3',
+  color: '#005F7F',
   description:
     'This is a sample Application to demonstrate how to make a custom DAM (Digital Asset Management) application on top of Contentful.',
   parameterDefinitions: [
@@ -39,9 +39,9 @@ setup({
 });
 
 function makeThumbnail(attachment) {
-  const thumbnail = attachment.url;
+  const thumbnail = attachment.rendition.publicuri;
   const url = typeof thumbnail === 'string' ? thumbnail : undefined;
-  const alt = attachment.name;
+  const alt = attachment.id;
   return [url, alt];
 }
 
@@ -56,14 +56,14 @@ async function openDialog(sdk, _currentValue, _config) {
     select: 'singlerendition',
     facets: ['TextFilter']
   };
-
   
   var tenant = "productstrategy1";
   var encodedOptions = window.btoa(JSON.stringify(selectorOptions));
   const tenantUrl = `https://${tenant}.dam.aprimo.com`
   var aprimoContentSelectorUrl = `${tenantUrl}/dam/selectcontent#options=${encodedOptions}`;
 
-  const handleMessageEvent = (event) => {
+
+  function handleMessageEvent(event)  {
     // Ensure only messages from the Aprimo Content Selector are handled.
     if (event.origin !== tenantUrl) {
         return;
@@ -74,14 +74,17 @@ async function openDialog(sdk, _currentValue, _config) {
         console.log(event);
         const ids = event.data.selection.map((selection) => selection.id)
         console.log(ids); 
+        sdk.field.setValue(event.data.selection);
     }
   }
   
   let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=1000,height=600,left=100,top=100`;
   window.open(aprimoContentSelectorUrl, 'selector', params);
   
-  
   window.addEventListener("message", handleMessageEvent, false);
+
+  return [];
+
 }
 
 function validateParameters({ apiKey, projectId }) {
