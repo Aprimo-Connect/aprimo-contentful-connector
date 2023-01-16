@@ -33,45 +33,10 @@ setup({
   ],
   validateParameters,
   makeThumbnail,
-  renderDialog,
+  renderDialog : () => null,
   openDialog,
   isDisabled: () => false,
 });
-
-function DialogLocation({ sdk }) {
-  const apiKey = sdk.parameters.installation.apiKey;
-  const projectId = sdk.parameters.installation.projectId;
-
-  const [damData, setDAMData] = useState();
-  useEffect(() => {
-    const fetchAssets = async () => {
-      const response = await fetch(
-        `/dam_api_response.json?api_key=${apiKey}&project_id=${projectId}`
-      );
-      return response.json();
-    };
-
-    fetchAssets().then(setDAMData);
-  }, [apiKey, projectId]);
-
-  if (damData === undefined) {
-    return <div>Please wait</div>;
-  }
-
-  return (
-    <EntityList>
-      {damData.map((item) => (
-        <EntityList.Item
-          key={item.id}
-          title={item.name}
-          description="Description"
-          thumbnailUrl={item.url}
-          onClick={() => sdk.close([item])}
-        />
-      ))}
-    </EntityList>
-  );
-}
 
 function makeThumbnail(attachment) {
   const thumbnail = attachment.url;
@@ -80,21 +45,16 @@ function makeThumbnail(attachment) {
   return [url, alt];
 }
 
-async function renderDialog(sdk) {
-  render(<DialogLocation sdk={sdk} />, document.getElementById('root'));
-  sdk.window.startAutoResizer();
-}
-
 async function openDialog(sdk, _currentValue, _config) {
   
-  
+  // Set the ContentSelector options to Public Links mode.
   var selectorOptions = {
     title: 'Select File',
     description: 'Select the file to import.',
     limitingSearchExpression: "",
     accept: 'Select',
     select: 'singlerendition',
-    facets: ['TextFilter', 'File Type', 'License Type', 'Country', 'Asset Status', 'Aprimo Smart Tags']
+    facets: ['TextFilter']
   };
 
   
@@ -111,6 +71,7 @@ async function openDialog(sdk, _currentValue, _config) {
     if (event.data.result === 'cancel') {
   
     } else {
+        console.log(event);
         const ids = event.data.selection.map((selection) => selection.id)
         console.log(ids); 
     }
@@ -121,23 +82,6 @@ async function openDialog(sdk, _currentValue, _config) {
   
   
   window.addEventListener("message", handleMessageEvent, false);
-  //const button = document.getElementById('openSelector');
-  //button.addEventListener('click', openSelector);
-
-  /*const result = await sdk.dialogs.openCurrentApp({
-    position: 'center',
-    title: CTA,
-    shouldCloseOnOverlayClick: true,
-    shouldCloseOnEscapePress: true,
-    width: 400,
-    allowHeightOverflow: true,
-  });
-
-  if (!Array.isArray(result)) {
-    return [];
-  }
-
-  return result.map((asset) => pick(asset, FIELDS_TO_PERSIST));*/
 }
 
 function validateParameters({ apiKey, projectId }) {
