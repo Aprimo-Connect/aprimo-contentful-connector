@@ -6,7 +6,6 @@ import './index.css';
 import { pick } from './utils';
 
 const CTA = 'Browse Aprimo';
-const FIELDS_TO_PERSIST = ['id', 'name', 'url'];
 
 setup({
   cta: CTA,
@@ -14,7 +13,7 @@ setup({
   logo: 'https://images.ctfassets.net/fo9twyrwpveg/6eVeSgMr2EsEGiGc208c6M/f6d9ff47d8d26b3b238c6272a40d3a99/contentful-logo.png',
   color: '#005F7F',
   description:
-    'This is a sample Application to demonstrate how to make a custom DAM (Digital Asset Management) application on top of Contentful.',
+    'This is a simple connector that allows content to come in from Aprimo.',
   parameterDefinitions: [
     {
       id: 'apiKey',
