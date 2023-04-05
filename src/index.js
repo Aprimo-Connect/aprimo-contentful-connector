@@ -1,98 +1,144 @@
-import { setup } from '@contentful/dam-app-base';
-import { EntityList } from '@contentful/f36-components';
-import { useEffect, useState } from 'react';
-import { render } from 'react-dom';
-import './index.css';
-import { pick } from './utils';
+import { setup } from "@contentful/dam-app-base";
 
-const CTA = 'Browse Aprimo';
+import logo from "./logo.svg";
+import "./index.css";
+
+const CTA = "Browse Aprimo";
 
 setup({
   cta: CTA,
-  name: 'Aprimo for Contentful',
-  logo: 'https://images.ctfassets.net/fo9twyrwpveg/6eVeSgMr2EsEGiGc208c6M/f6d9ff47d8d26b3b238c6272a40d3a99/contentful-logo.png',
-  color: '#005F7F',
+  name: "Aprimo for Contentful",
+  logo,
+  color: "#005F7F",
   description:
-    'This is a simple connector that allows content to come in from Aprimo.',
+    "The Aprimo for Contentful app allows editors to select media from the Aprimo DAM.",
   parameterDefinitions: [
     {
-      id: 'apiKey',
-      type: 'Symbol',
-      name: 'API Key',
-      description: 'Provide the API key here',
-      required: true,
-    },
-    {
-      id: 'projectId',
-      type: 'Number',
-      name: 'Project Id',
-      description: 'Provide the Project Id here',
+      id: "aprimoTenantName",
+      type: "Symbol",
+      name: "Arimo Tenant Name",
+      description:
+        "Enter the name of your Aprimo DAM tenant (e.g. mytenant if your Aprimo DAM URL is https://mytenant.dam.aprimo.com)",
       required: true,
     },
   ],
   validateParameters,
   makeThumbnail,
-  renderDialog : () => null,
+  // We cannot use renderDialog because of the required authentication flow
+  renderDialog: () => {},
   openDialog,
   isDisabled: () => false,
 });
 
 function makeThumbnail(attachment) {
   const thumbnail = attachment.rendition.publicuri;
-  const url = typeof thumbnail === 'string' ? thumbnail : undefined;
-  const alt = attachment.id;
+  const url = typeof thumbnail === "string" ? thumbnail : undefined;
+  const alt = attachment.title || attachment.id;
   return [url, alt];
 }
 
-async function openDialog(sdk, _currentValue, _config) {
-  
-  // Set the ContentSelector options to Public Links mode.
-  var selectorOptions = {
-    title: 'Select File',
-    description: 'Select the file to import.',
-    limitingSearchExpression: "",
-    accept: 'Select',
-    select: 'singlerendition',
-    facets: ['TextFilter']
-  };
-  
-  var tenant = "productstrategy1";
-  var encodedOptions = window.btoa(JSON.stringify(selectorOptions));
-  const tenantUrl = `https://${tenant}.dam.aprimo.com`
-  var aprimoContentSelectorUrl = `${tenantUrl}/dam/selectcontent#options=${encodedOptions}`;
+const selectorOptions = {
+  title: "Select File",
+  description: "Select the file to import.",
+  limitingSearchExpression: "",
+  accept: "Select",
+  select: "singlerendition",
+  facets: ["TextFilter"],
+};
 
-
-  function handleMessageEvent(event)  {
-    // Ensure only messages from the Aprimo Content Selector are handled.
-    if (event.origin !== tenantUrl) {
-        return;
-    }
-    if (event.data.result === 'cancel') {
-  
-    } else {
-        console.log(event);
-        const ids = event.data.selection.map((selection) => selection.id)
-        console.log(ids); 
-        sdk.field.setValue(event.data.selection);
-    }
+let contentSelectorWindowReference;
+async function openDialog(sdk, _, config) {
+  if (isContentSelectorAlreadyOpen()) {
+    contentSelectorWindowReference.focus();
+    return [];
   }
-  
-  let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=1000,height=600,left=100,top=100`;
-  window.open(aprimoContentSelectorUrl, 'selector', params);
-  
-  window.addEventListener("message", handleMessageEvent, false);
 
-  return _currentValue;
+  const aprimoDamOrigin = getAprimoDamOrigin(config, sdk);
 
+  const result = await openContentSelector(aprimoDamOrigin, selectorOptions);
+
+  if (!Array.isArray(result)) {
+    return [];
+  }
+
+  return result;
 }
 
-function validateParameters({ apiKey, projectId }) {
-  if (!apiKey) {
-    return 'Please add an API Key';
+function isContentSelectorAlreadyOpen() {
+  if (
+    contentSelectorWindowReference &&
+    !contentSelectorWindowReference.closed
+  ) {
+    return true;
   }
 
-  if (!projectId) {
-    return 'Please add a Project Id';
+  return false;
+}
+
+function openContentSelector(aprimoDamOrigin, selectorOptions) {
+  const encodedOptions = window.btoa(JSON.stringify(selectorOptions));
+  const aprimoContentSelectorUrl = `${aprimoDamOrigin}/dam/selectcontent#options=${encodedOptions}`;
+
+  return new Promise((resolve) => {
+    const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=1000,height=600,left=100,top=100`;
+    contentSelectorWindowReference = window.open(
+      aprimoContentSelectorUrl,
+      "selector",
+      params
+    );
+    window.addEventListener(
+      "message",
+      (e) => {
+        if (e.origin !== aprimoDamOrigin) {
+          return;
+        }
+
+        const { result, selection } = e.data;
+        if (!result) {
+          return;
+        }
+
+        if (result !== "accept" || !selection || selection.length === 0) {
+          resolve([]);
+          return;
+        }
+
+        resolve(selection);
+      },
+      false
+    );
+  });
+}
+
+function getAprimoDamOrigin(config, sdk) {
+  const aprimoTenantName = getAprimoTenantName(config, sdk);
+
+  if (!aprimoTenantName) {
+    return null;
+  }
+
+  return `https://${aprimoTenantName}.dam.aprimo.com`;
+}
+
+function getAprimoTenantName(config, sdk) {
+  if (config["aprimoTenantName"]) {
+    return config["aprimoTenantName"];
+  }
+
+  if (sdk.parameters.instance["aprimoTenantName"]) {
+    return sdk.parameters.instance["aprimoTenantName"];
+  }
+
+  if (sdk.parameters.installation["aprimoTenantName"]) {
+    return sdk.parameters.installation["aprimoTenantName"];
+  }
+
+  return null;
+}
+
+function validateParameters({ aprimoTenantName }) {
+  if (!aprimoTenantName) {
+    return "Please provide an Aprimo tenant name.";
   }
 
   return null;
