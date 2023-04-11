@@ -4,24 +4,16 @@ function isFullUrl(url) {
   return URL_SCHEME_REGEX.test(url);
 }
 
-function getAprimoTenantUrl(config, sdk) {
+function getAprimoTenantUrl(config) {
   if (config["aprimoTenantUrl"]) {
     return config["aprimoTenantUrl"];
-  }
-
-  if (sdk.parameters.instance["aprimoTenantUrl"]) {
-    return sdk.parameters.instance["aprimoTenantUrl"];
-  }
-
-  if (sdk.parameters.installation["aprimoTenantUrl"]) {
-    return sdk.parameters.installation["aprimoTenantUrl"];
   }
 
   return null;
 }
 
-export function getAprimoDamOrigin(config, sdk) {
-  let aprimoTenantUrl = getAprimoTenantUrl(config, sdk);
+export function getAprimoDamOrigin(config) {
+  let aprimoTenantUrl = getAprimoTenantUrl(config);
 
   if (!aprimoTenantUrl) {
     return null;
@@ -45,7 +37,11 @@ export function getAprimoDamOrigin(config, sdk) {
   return parsedUrl.origin;
 }
 
-export function getAprimoContentSelectorUrl(aprimoDamOrigin, selectorOptions) {
+export function getAprimoContentSelectorUrl(
+  aprimoDamOrigin,
+  selectorOptions,
+  sdk
+) {
   const encodedOptions = window.btoa(JSON.stringify(selectorOptions));
   const aprimoContentSelectorUrl = new URL(
     "/dam/selectcontent",
@@ -55,6 +51,22 @@ export function getAprimoContentSelectorUrl(aprimoDamOrigin, selectorOptions) {
     aprimoContentSelectorUrl.pathname = "/selectcontent";
   }
   aprimoContentSelectorUrl.hash = `#options=${encodedOptions}`;
+
+  aprimoContentSelectorUrl.searchParams.append("source", "contentful");
+  if (sdk) {
+    if (sdk.ids) {
+      aprimoContentSelectorUrl.searchParams.append(
+        "contentful_org",
+        sdk.ids.organization
+      );
+    }
+    if (sdk.user) {
+      aprimoContentSelectorUrl.searchParams.append(
+        "contentful_user",
+        sdk.user.email
+      );
+    }
+  }
 
   return aprimoContentSelectorUrl;
 }

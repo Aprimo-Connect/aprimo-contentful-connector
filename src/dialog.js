@@ -14,7 +14,11 @@ export function renderDialog(sdk) {
 
   const iframe = document.createElement("iframe");
   iframe.id = "aprimo-contentselector";
-  iframe.src = getAprimoContentSelectorUrl(aprimoDamOrigin, selectorOptions);
+  iframe.src = getAprimoContentSelectorUrl(
+    aprimoDamOrigin,
+    selectorOptions,
+    sdk
+  );
   iframe.width = 650;
   iframe.height = 650;
   iframe.style.border = "none";
@@ -34,12 +38,14 @@ export function renderDialog(sdk) {
 }
 
 export async function openDialog(sdk, _, config) {
+  console.log(sdk);
+
   const result = await sdk.dialogs.openCurrentApp({
     position: "center",
     title: "Browse Aprimo",
     shouldCloseOnOverlayClick: true,
     shouldCloseOnEscapePress: true,
-    parameters: { ...config, aprimoDamOrigin: getAprimoDamOrigin(config, sdk) },
+    parameters: { aprimoDamOrigin: getAprimoDamOrigin(config) },
     width: 650,
     allowHeightOverflow: true,
   });

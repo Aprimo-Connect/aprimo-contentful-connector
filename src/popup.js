@@ -18,10 +18,11 @@ function isContentSelectorAlreadyOpen() {
   return false;
 }
 
-function openContentSelector(aprimoDamOrigin, selectorOptions) {
+function openContentSelector(aprimoDamOrigin, selectorOptions, sdk) {
   const aprimoContentSelectorUrl = getAprimoContentSelectorUrl(
     aprimoDamOrigin,
-    selectorOptions
+    selectorOptions,
+    sdk
   );
 
   return new Promise((resolve) => {
@@ -49,9 +50,13 @@ export async function openDialog(sdk, _, config) {
     return [];
   }
 
-  const aprimoDamOrigin = getAprimoDamOrigin(config, sdk);
+  const aprimoDamOrigin = getAprimoDamOrigin(config);
 
-  const result = await openContentSelector(aprimoDamOrigin, selectorOptions);
+  const result = await openContentSelector(
+    aprimoDamOrigin,
+    selectorOptions,
+    sdk
+  );
 
   if (!Array.isArray(result)) {
     return [];

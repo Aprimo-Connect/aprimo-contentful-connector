@@ -3,10 +3,26 @@ import { setup } from "@contentful/dam-app-base";
 import logo from "./logo.png";
 import "./index.css";
 
-import { renderDialog, openDialog } from "./dialog";
-// import { renderDialog, openDialog } from "./popup";
+import {
+  renderDialog as dialogRenderDialog,
+  openDialog as dialogOpenDialog,
+} from "./dialog";
+import {
+  renderDialog as popupRenderDialog,
+  openDialog as popupOpenDialog,
+} from "./popup";
 
 import { makeThumbnail } from "./util";
+
+const popup = {
+  renderDialog: popupRenderDialog,
+  openDialog: popupOpenDialog,
+};
+
+const dialog = {
+  renderDialog: dialogRenderDialog,
+  openDialog: dialogOpenDialog,
+};
 
 const CTA = "Browse Aprimo";
 
@@ -23,15 +39,32 @@ setup({
       type: "Symbol",
       name: "Arimo URL",
       description:
-        "Enter the URL of your Aprimo DAM tenant (e.g.https://mytenant.dam.aprimo.com)",
+        "Enter the URL of your Aprimo DAM tenant (e.g. https://mytenant.dam.aprimo.com)",
+      required: true,
+    },
+    {
+      id: "type",
+      type: "List",
+      name: "Integration Type (testing)",
+      description:
+        "Choose 'popup' if you cannot log in with an iframe. Otherwise choose 'dialog'.",
+      value: "dialog,popup",
+      default: "dialog",
       required: true,
     },
   ],
   validateParameters,
   makeThumbnail,
-  // We cannot use renderDialog because of the required authentication flow
-  renderDialog,
-  openDialog,
+  renderDialog(sdk) {
+    return chooseAppType(sdk.parameters.installation).renderDialog(sdk);
+  },
+  openDialog(sdk, currentValue, config) {
+    return chooseAppType(sdk.parameters.installation).openDialog(
+      sdk,
+      currentValue,
+      config
+    );
+  },
   isDisabled: () => false,
 });
 
@@ -41,4 +74,12 @@ function validateParameters({ aprimoTenantUrl }) {
   }
 
   return null;
+}
+
+function chooseAppType({ type }) {
+  if (type === "popup") {
+    return popup;
+  } else {
+    return dialog;
+  }
 }
