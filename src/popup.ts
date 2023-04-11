@@ -52,7 +52,7 @@ function openContentSelector(
   });
 }
 
-export function renderDialog() {}
+export function renderDialog(sdk: DialogExtensionSDK) {}
 
 export async function openDialog(
   sdk: DialogExtensionSDK,

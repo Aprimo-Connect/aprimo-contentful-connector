@@ -49,7 +49,7 @@ setup({
       type: "Symbol",
       name: "Arimo URL",
       description:
-        "Enter the URL of your Aprimo DAM tenant (e.g. https://mytenant.dam.aprimo.com)",
+        "Enter the URL of your Aprimo environment (e.g. https://mycompany.dam.aprimo.com)",
       required: true,
     },
   ],

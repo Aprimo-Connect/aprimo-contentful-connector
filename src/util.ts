@@ -30,6 +30,14 @@ export function getAprimoDamOrigin(config: Config) {
     aprimoTenantUrl = `https://${aprimoTenantUrl}.dam.aprimo.com`;
   }
 
+  // Maybe they just entered the main tenant URL and we need to convert to the DAM tenant URL
+  if (
+    aprimoTenantUrl.indexOf(".dam.aprimo.com") === -1 &&
+    aprimoTenantUrl.indexOf(".aprimo.com") !== -1
+  ) {
+    aprimoTenantUrl = aprimoTenantUrl.replace(".aprimo.com", ".dam.aprimo.com");
+  }
+
   // Make sure the URL has a scheme
   if (!isFullUrl(aprimoTenantUrl)) {
     aprimoTenantUrl = `https://${aprimoTenantUrl}`;
