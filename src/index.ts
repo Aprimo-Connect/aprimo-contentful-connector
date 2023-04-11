@@ -38,11 +38,11 @@ const dialog = {
 
 setup({
   cta: "Browse Aprimo",
-  name: "Aprimo for Contentful",
+  name: "Aprimo",
   logo,
   color: "#005F7F",
   description:
-    "The Aprimo for Contentful app allows editors to select media from the Aprimo DAM.",
+    "The Aprimo App allows editors to select media from the Aprimo DAM.",
   parameterDefinitions: [
     {
       id: "aprimoTenantUrl",
@@ -69,7 +69,7 @@ setup({
 
 function validateParameters({ aprimoTenantUrl }: Record<string, any>) {
   if (!aprimoTenantUrl) {
-    return "Please provide an Aprimo DAM URL.";
+    return "Please provide the URL to your Aprimo environment.";
   }
 
   return null;
