@@ -25,16 +25,16 @@ const dialog = {
   openDialog: dialogOpenDialog,
 };
 
-const appTypeParameter = {
-  id: "type",
-  type: "List",
-  name: "Integration Type (testing)",
-  description:
-    "Choose 'popup' if you cannot log in with an iframe. Otherwise choose 'dialog'.",
-  value: "dialog,popup",
-  default: "dialog",
-  required: true,
-};
+// const appTypeParameter = {
+//   id: "type",
+//   type: "List",
+//   name: "Integration Type (testing)",
+//   description:
+//     "Choose 'popup' if you cannot log in with an iframe. Otherwise choose 'dialog'.",
+//   value: "dialog,popup",
+//   default: "dialog",
+//   required: true,
+// };
 
 setup({
   cta: "Browse Aprimo",
@@ -52,7 +52,6 @@ setup({
         "Enter the URL of your Aprimo DAM tenant (e.g. https://mytenant.dam.aprimo.com)",
       required: true,
     },
-    appTypeParameter as ParameterDefinition,
   ],
   validateParameters,
   makeThumbnail,
@@ -77,9 +76,5 @@ function validateParameters({ aprimoTenantUrl }: Record<string, any>) {
 }
 
 function chooseAppType({ type }: KeyValueMap) {
-  if (type === "popup") {
-    return popup;
-  } else {
-    return dialog;
-  }
+  return popup;
 }
