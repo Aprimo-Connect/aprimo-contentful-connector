@@ -1,10 +1,13 @@
+import { Asset, Config } from "@contentful/dam-app-base";
+import { BaseExtensionSDK } from "@contentful/app-sdk";
+
 const URL_SCHEME_REGEX = /^https?:\/\//;
 
-function isFullUrl(url) {
+function isFullUrl(url: string) {
   return URL_SCHEME_REGEX.test(url);
 }
 
-function getAprimoTenantUrl(config) {
+function getAprimoTenantUrl(config: Config) {
   if (config["aprimoTenantUrl"]) {
     return config["aprimoTenantUrl"];
   }
@@ -12,7 +15,7 @@ function getAprimoTenantUrl(config) {
   return null;
 }
 
-export function getAprimoDamOrigin(config) {
+export function getAprimoDamOrigin(config: Config) {
   let aprimoTenantUrl = getAprimoTenantUrl(config);
 
   if (!aprimoTenantUrl) {
@@ -38,9 +41,9 @@ export function getAprimoDamOrigin(config) {
 }
 
 export function getAprimoContentSelectorUrl(
-  aprimoDamOrigin,
-  selectorOptions,
-  sdk
+  aprimoDamOrigin: string,
+  selectorOptions: any,
+  sdk: BaseExtensionSDK
 ) {
   const encodedOptions = window.btoa(JSON.stringify(selectorOptions));
   const aprimoContentSelectorUrl = new URL(
@@ -71,8 +74,11 @@ export function getAprimoContentSelectorUrl(
   return aprimoContentSelectorUrl;
 }
 
-export function contentSelectorPostMessageCallbackHandlerBuilder(origin, cb) {
-  return (e) => {
+export function contentSelectorPostMessageCallbackHandlerBuilder(
+  origin: string,
+  cb: (assets: Asset[]) => void
+) {
+  return (e: MessageEvent) => {
     if (e.origin !== origin) {
       return;
     }
@@ -85,8 +91,6 @@ export function contentSelectorPostMessageCallbackHandlerBuilder(origin, cb) {
     if (result !== "accept" || !selection || selection.length === 0) {
       cb([]);
     }
-
-    console.log("selection", selection);
 
     for (const asset of selection) {
       if (!isFullUrl(asset.rendition.publicuri)) {
@@ -101,9 +105,9 @@ export function contentSelectorPostMessageCallbackHandlerBuilder(origin, cb) {
   };
 }
 
-export function makeThumbnail(attachment) {
+export function makeThumbnail(attachment: Asset): [string, string | undefined] {
   const thumbnail = attachment.rendition.publicuri;
-  const url = typeof thumbnail === "string" ? thumbnail : undefined;
+  const url = typeof thumbnail === "string" ? thumbnail : "";
   const alt = attachment.title || attachment.id;
   return [url, alt];
 }

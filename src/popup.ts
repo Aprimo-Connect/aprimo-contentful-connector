@@ -1,11 +1,17 @@
+import {
+  Asset,
+  BaseExtensionSDK,
+  DialogExtensionSDK,
+} from "@contentful/app-sdk";
 import { selectorOptions } from "./config";
 import {
   contentSelectorPostMessageCallbackHandlerBuilder,
   getAprimoContentSelectorUrl,
   getAprimoDamOrigin,
 } from "./util";
+import { Config } from "@contentful/dam-app-base";
 
-let contentSelectorWindowReference;
+let contentSelectorWindowReference: Window | null = null;
 
 function isContentSelectorAlreadyOpen() {
   if (
@@ -18,7 +24,11 @@ function isContentSelectorAlreadyOpen() {
   return false;
 }
 
-function openContentSelector(aprimoDamOrigin, selectorOptions, sdk) {
+function openContentSelector(
+  aprimoDamOrigin: string,
+  selectorOptions: any,
+  sdk: BaseExtensionSDK
+) {
   const aprimoContentSelectorUrl = getAprimoContentSelectorUrl(
     aprimoDamOrigin,
     selectorOptions,
@@ -44,13 +54,16 @@ function openContentSelector(aprimoDamOrigin, selectorOptions, sdk) {
 
 export function renderDialog() {}
 
-export async function openDialog(sdk, _, config) {
+export async function openDialog(
+  sdk: DialogExtensionSDK,
+  config: Config
+): Promise<Asset[]> {
   if (isContentSelectorAlreadyOpen()) {
-    contentSelectorWindowReference.focus();
+    contentSelectorWindowReference?.focus();
     return [];
   }
 
-  const aprimoDamOrigin = getAprimoDamOrigin(config);
+  const aprimoDamOrigin = getAprimoDamOrigin(config)!;
 
   const result = await openContentSelector(
     aprimoDamOrigin,

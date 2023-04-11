@@ -1,3 +1,5 @@
+import { DialogExtensionSDK } from "@contentful/app-sdk";
+import { Asset, Config } from "@contentful/dam-app-base";
 import { selectorOptions } from "./config";
 import {
   contentSelectorPostMessageCallbackHandlerBuilder,
@@ -5,8 +7,8 @@ import {
   getAprimoDamOrigin,
 } from "./util";
 
-export function renderDialog(sdk) {
-  const config = sdk.parameters.invocation;
+export function renderDialog(sdk: DialogExtensionSDK) {
+  const config = sdk.parameters.invocation as any;
 
   const { aprimoDamOrigin } = config;
 
@@ -18,9 +20,9 @@ export function renderDialog(sdk) {
     aprimoDamOrigin,
     selectorOptions,
     sdk
-  );
-  iframe.width = 650;
-  iframe.height = 650;
+  ).toString();
+  iframe.width = "650";
+  iframe.height = "650";
   iframe.style.border = "none";
   container.appendChild(iframe);
 
@@ -37,9 +39,10 @@ export function renderDialog(sdk) {
   );
 }
 
-export async function openDialog(sdk, _, config) {
-  console.log(sdk);
-
+export async function openDialog(
+  sdk: DialogExtensionSDK,
+  config: Config
+): Promise<Asset[]> {
   const result = await sdk.dialogs.openCurrentApp({
     position: "center",
     title: "Browse Aprimo",
