@@ -47,7 +47,7 @@ setup({
     {
       id: "aprimoTenantUrl",
       type: "Symbol",
-      name: "Arimo URL",
+      name: "Aprimo URL",
       description:
         "Enter the URL of your Aprimo environment (e.g. https://mycompany.dam.aprimo.com)",
       required: true,
