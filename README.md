@@ -33,3 +33,7 @@ https://www.contentful.com/developers/docs/extensibility/app-framework/tutorial/
 - `npm run build`
 
 This will create a `build` folder that can be deployed to Contentful.
+
+## Publishing
+
+After build the application (or using the Github action to execute the build), upload the package to Contentful.
