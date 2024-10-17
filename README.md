@@ -37,3 +37,8 @@ This will create a `build` folder that can be deployed to Contentful.
 ## Publishing
 
 After build the application (or using the Github action to execute the build), upload the package to Contentful.
+# Open Source Policy
+
+For more information about Aprimo's Open Source Policies, please refer to
+https://community.aprimo.com/knowledgecenter/aprimo-connect/aprimo-connect-open-source
+
